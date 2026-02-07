@@ -811,13 +811,19 @@ SERVICE_PASSWORD=openstack
 LOGFILE=/opt/stack/logs/stack.sh.log
 LOG_COLOR=False
 
-# Seulement c-vol (pas c-sch, pas c-api)
 ENABLED_SERVICES=c-vol
 
-# Configuration LVM
 VOLUME_GROUP=cinder-volumes
 VOLUME_NAME_PREFIX=volume-
 VOLUME_BACKING_FILE_SIZE=10250M
+
+# Hook pour installer pymysql avant Cinder
+[[post-config|$CINDER_CONF]]
+[database]
+connection = mysql+pymysql://root:$DATABASE_PASSWORD@$SERVICE_HOST/cinder?charset=utf8
+
+[[post-install]]
+/opt/stack/data/venv/bin/pip install pymysql
 
 EOF
 
