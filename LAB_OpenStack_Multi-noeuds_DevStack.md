@@ -2,7 +2,7 @@
 
 ---
 
-## 📋 Objectifs du LAB
+##  Objectifs du LAB
 
 À l'issue de ce LAB, vous serez capable de :
 
