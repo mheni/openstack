@@ -598,6 +598,46 @@ résultat pour ce ci LISTEN  0  100  0.0.0.0:9292  0.0.0.0:*  users:(("uwsgi",..
 
 ```
 
+**autre verification a corriger**
+
+```bash
+sudo nano /etc/cinder/cinder-api-uwsgi.ini
+ajouter cette ligne
+http-socket = 0.0.0.0:8776
+# le fichier ressemble à ça
+[uwsgi]
+chmod-socket = 666
+socket = /var/run/uwsgi/cinder-api.socket
+http-socket = 0.0.0.0:8776
+start-time = %t
+lazy-apps = true
+add-header = Connection: close
+buffer-size = 65535
+hook-master-start = unix_signal:15 gracefully_kill_them_all
+thunder-lock = true
+plugins = http,python3
+enable-threads = true
+worker-reload-mercy = 80
+exit-on-reload = false
+die-on-term = true
+master = true
+processes = 2
+module = cinder.wsgi.api:application
+
+#redemmarer le service et vérifier le port
+sudo systemctl restart devstack@c-api
+
+#Attends 5 secondes, puis vérifie :
+
+sudo ss -ltnp | grep 8776
+Résultat attendu :
+
+#text
+LISTEN  0  100  0.0.0.0:8776  0.0.0.0:*  users:(("uwsgi",...))
+
+```
+
+
 **Résultat attendu** : Port 8776 en LISTEN sur 10.0.0.11.
 
 
@@ -760,32 +800,25 @@ cd devstack
 cat > local.conf << 'EOF'
 [[local|localrc]]
 
-# IP Management de block1
 HOST_IP=10.0.0.41
+SERVICE_HOST=10.0.0.11
 
-# Mots de passe (identiques au controller)
 ADMIN_PASSWORD=openstack
 DATABASE_PASSWORD=openstack
 RABBIT_PASSWORD=openstack
 SERVICE_PASSWORD=openstack
 
 LOGFILE=/opt/stack/logs/stack.sh.log
+LOG_COLOR=False
 
-# Multi-nœud : pointer vers le controller
-SERVICE_HOST=10.0.0.11
-MYSQL_HOST=$SERVICE_HOST
-RABBIT_HOST=$SERVICE_HOST
-GLANCE_HOSTPORT=$SERVICE_HOST:9292
-KEYSTONE_AUTH_HOST=$SERVICE_HOST
-KEYSTONE_SERVICE_HOST=$SERVICE_HOST
+# Seulement c-vol (pas c-sch, pas c-api)
+ENABLED_SERVICES=c-vol
 
-# Services Cinder : UNIQUEMENT volume, scheduler, backup (PAS c-api)
-ENABLED_SERVICES=c-vol,c-sch,c-bak
+# Configuration LVM
+VOLUME_GROUP=cinder-volumes
+VOLUME_NAME_PREFIX=volume-
+VOLUME_BACKING_FILE_SIZE=10250M
 
-# Backend LVM pour Cinder
-VOLUME_BACKING_FILE_SIZE=50G
-VOLUME_BACKING_FILE=/opt/stack/data/stack-volumes-backing-file
-VOLUME_GROUP=stack-volumes-lvm
 EOF
 
 ```
