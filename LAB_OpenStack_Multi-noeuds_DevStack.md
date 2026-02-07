@@ -233,15 +233,19 @@ network:
       dhcp4: true
       nameservers:
         addresses: [8.8.8.8]
-    ens37:
+    ens36:
+      dhcp4: false
       addresses: [203.0.113.11/24]
     ens38:
+      dhcp4: false
       addresses: [10.0.0.11/24]
+
 ```
 
 Appliquer :
 
 ```bash
+sudo systemctl enable systemd-networkd
 sudo netplan apply
 ip addr show
 ```
@@ -264,10 +268,13 @@ network:
       dhcp4: true
       nameservers:
         addresses: [8.8.8.8]
-    ens37:
+    ens36:
+      dhcp4: false
       addresses: [203.0.113.31/24]
     ens38:
+      dhcp4: false
       addresses: [10.0.0.31/24]
+
 ```
 
 ```bash
@@ -287,10 +294,13 @@ network:
       dhcp4: true
       nameservers:
         addresses: [8.8.8.8]
-    ens37:
+    ens36:
+      dhcp4: false
       addresses: [203.0.113.32/24]
     ens38:
+      dhcp4: false
       addresses: [10.0.0.32/24]
+
 ```
 
 ```bash
@@ -310,10 +320,13 @@ network:
       dhcp4: true
       nameservers:
         addresses: [8.8.8.8]
-    ens37:
+    ens36:
+      dhcp4: false
       addresses: [203.0.113.41/24]
     ens38:
+      dhcp4: false
       addresses: [10.0.0.41/24]
+
 ```
 
 ```bash
@@ -471,7 +484,6 @@ cd devstack
 ### 4.2 Fichier local.conf
 
 ```bash
-cat > local.conf << 'EOF'
 [[local|localrc]]
 
 HOST_IP=10.0.0.11
@@ -498,12 +510,12 @@ ENABLED_SERVICES+=,n-api,n-cond,n-sch,n-novnc,n-api-meta
 ENABLED_SERVICES+=,placement-api,placement-client
 
 # Glance
-ENABLED_SERVICES+=,g-api,g-reg
+ENABLED_SERVICES+=,g-api
 
-# Cinder API (obligatoire pour que block1 fonctionne)
-ENABLED_SERVICES+=,c-api
+# Cinder API + scheduler (obligatoire pour que block1 fonctionne)
+ENABLED_SERVICES+=,c-api,c-sch
 
-# Neutron avec OVN (sans q-agt, q-l3, q-dhcp qui sont incompatibles avec OVN)
+# Neutron avec OVN
 ENABLED_SERVICES+=,q-svc,q-meta
 ENABLED_SERVICES+=,ovn-controller,ovn-northd,ovs-vswitchd,ovsdb-server,q-ovn-metadata-agent
 
@@ -516,7 +528,7 @@ PUBLIC_INTERFACE=ens38
 NOVA_VNC_ENABLED=True
 VNCSERVER_LISTEN=0.0.0.0
 VNCSERVER_PROXYCLIENT_ADDRESS=$HOST_IP
-EOF
+
 ```
 
 Vérifier le fichier :
@@ -565,6 +577,11 @@ openstack service list
 
 ```bash
 openstack endpoint list
+#modifier les adresse si vous les trouvez 127.0.0.1:60999 ou 9292 pour eviter les problème
+
+
+
+
 ```
 
 **Résultat attendu** : Endpoints public, internal, admin pour chaque service avec IP 10.0.0.11.
@@ -573,9 +590,16 @@ openstack endpoint list
 
 ```bash
 sudo ss -ltnp | grep 8776
+sudo sed -i 's/http-socket = 127.0.0.1:60999/http-socket = 0.0.0.0:9292/' /etc/glance/glance-uwsgi.ini
+grep http-socket /etc/glance/glance-uwsgi.ini
+sudo systemctl restart devstack@g-api
+sudo ss -ltnp | grep 9292
+résultat pour ce ci LISTEN  0  100  0.0.0.0:9292  0.0.0.0:*  users:(("uwsgi",...))
+
 ```
 
 **Résultat attendu** : Port 8776 en LISTEN sur 10.0.0.11.
+
 
 ---
 
@@ -611,7 +635,6 @@ SERVICE_PASSWORD=openstack
 
 LOGFILE=/opt/stack/logs/stack.sh.log
 
-DATABASE_TYPE=mysql
 SERVICE_HOST=10.0.0.11
 MYSQL_HOST=$SERVICE_HOST
 RABBIT_HOST=$SERVICE_HOST
@@ -626,7 +649,7 @@ NOVNCPROXY_URL="http://$SERVICE_HOST:6080/vnc_auto.html"
 VNCSERVER_LISTEN=$HOST_IP
 VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
 EOF
-```
+
 
 ---
 
@@ -668,11 +691,14 @@ cd devstack
 cat > local.conf << 'EOF'
 [[local|localrc]]
 
+# IP Management de Compute2
 HOST_IP=10.0.0.32
 
+# Réseaux internes (identiques au controller)
 FIXED_RANGE=10.11.12.0/24
 FLOATING_RANGE=10.0.0.200/27
 
+# Mots de passe (identiques au controller)
 ADMIN_PASSWORD=openstack
 DATABASE_PASSWORD=openstack
 RABBIT_PASSWORD=openstack
@@ -680,7 +706,7 @@ SERVICE_PASSWORD=openstack
 
 LOGFILE=/opt/stack/logs/stack.sh.log
 
-DATABASE_TYPE=mysql
+# Multi-nœud : pointer vers le controller
 SERVICE_HOST=10.0.0.11
 MYSQL_HOST=$SERVICE_HOST
 RABBIT_HOST=$SERVICE_HOST
@@ -688,13 +714,16 @@ GLANCE_HOSTPORT=$SERVICE_HOST:9292
 KEYSTONE_AUTH_HOST=$SERVICE_HOST
 KEYSTONE_SERVICE_HOST=$SERVICE_HOST
 
+# Services sur compute : Nova compute + OVN
 ENABLED_SERVICES=n-cpu,placement-client,ovn-controller,ovs-vswitchd,ovsdb-server,q-ovn-metadata-agent
 
+# Configuration VNC
 NOVA_VNC_ENABLED=True
 NOVNCPROXY_URL="http://$SERVICE_HOST:6080/vnc_auto.html"
 VNCSERVER_LISTEN=$HOST_IP
 VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
 EOF
+
 ```
 
 ---
@@ -706,6 +735,8 @@ EOF
 ```
 
 **Durée** : 15–25 minutes
+
+
 
 ---
 
@@ -729,8 +760,10 @@ cd devstack
 cat > local.conf << 'EOF'
 [[local|localrc]]
 
+# IP Management de block1
 HOST_IP=10.0.0.41
 
+# Mots de passe (identiques au controller)
 ADMIN_PASSWORD=openstack
 DATABASE_PASSWORD=openstack
 RABBIT_PASSWORD=openstack
@@ -738,6 +771,7 @@ SERVICE_PASSWORD=openstack
 
 LOGFILE=/opt/stack/logs/stack.sh.log
 
+# Multi-nœud : pointer vers le controller
 SERVICE_HOST=10.0.0.11
 MYSQL_HOST=$SERVICE_HOST
 RABBIT_HOST=$SERVICE_HOST
@@ -745,12 +779,15 @@ GLANCE_HOSTPORT=$SERVICE_HOST:9292
 KEYSTONE_AUTH_HOST=$SERVICE_HOST
 KEYSTONE_SERVICE_HOST=$SERVICE_HOST
 
+# Services Cinder : UNIQUEMENT volume, scheduler, backup (PAS c-api)
 ENABLED_SERVICES=c-vol,c-sch,c-bak
 
+# Backend LVM pour Cinder
 VOLUME_BACKING_FILE_SIZE=50G
 VOLUME_BACKING_FILE=/opt/stack/data/stack-volumes-backing-file
 VOLUME_GROUP=stack-volumes-lvm
 EOF
+
 ```
 
 **Note importante** : `c-api` n'est PAS dans ENABLED_SERVICES car il reste sur le controller.
