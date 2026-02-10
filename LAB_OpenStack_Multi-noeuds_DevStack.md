@@ -16,7 +16,7 @@
 
 ---
 
-## 📚 Table des matières
+##  Table des matières
 
 1. [Architecture du lab](#architecture-du-lab)
 2. [PARTIE 1 : Préparation VMware Workstation](#partie-1--préparation-vmware-workstation)
@@ -194,7 +194,7 @@ ip a
 - `ens37` : Provider (pas d'IP configurée)
 - `ens38` : Management (pas d'IP configurée)
 
-⚠️ **Important** : Si les noms d'interfaces sont différents (ex: ens160, ens192), note-les et adapte tous les fichiers Netplan ci-dessous avec tes noms réels.
+ **Important** : Si les noms d'interfaces sont différents (ex: ens160, ens192), note-les et adapte tous les fichiers Netplan ci-dessous avec tes noms réels.
 
 ---
 
@@ -394,7 +394,7 @@ ping -c 3 10.0.0.41
 
 **Résultat attendu** : Toutes les IP Management répondent.
 
-⚠️ **POINT DE CONTRÔLE** : Si un test échoue, ne pas continuer. Vérifier Netplan, /etc/hosts, et la configuration VMware (tous les nœuds doivent être sur VMnet2 et VMnet3).
+ **POINT DE CONTRÔLE** : Si un test échoue, ne pas continuer. Vérifier Netplan, /etc/hosts, et la configuration VMware (tous les nœuds doivent être sur VMnet2 et VMnet3).
 
 ---
 
@@ -1095,11 +1095,11 @@ Les deux instances sont en statut ACTIVE, une sur chaque nœud compute.
 
 ---
 
-**Auteur** : LAB DevStack Multi-nœuds  
+**Auteur** :Dr. MAHER HENI LAB DevStack Multi-nœuds  
 **Version** : 2026.1  
 **Date** : Février 2026  
 **Licence** : Usage pédagogique et formation
 
 ---
 
-*Préparé à l'aide de Claude Sonnet 4.5*
+*Préparé Par Dr. Ing MAHER HENI pour la formation OpenStack Configuration et Administration All Right Reserved*
