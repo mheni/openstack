@@ -562,9 +562,12 @@ OS Version: Ubuntu 22.04 jammy
 
 N.B si vous aurez une erreur 127 ( lié à HORIZON), commenter la ligne #ENABLED_SERVICE+=,horizon dans local.conf  et relancer l'installation
 après l'installation 
+
+```
 apt install openstack-dashboard
 systemctl restart apache2.service
 et ensuite essayer d'acceder à l'URI http://10.0.0.11/horizon
+```
 ---
 
 ### 4.4 Vérifications
