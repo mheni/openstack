@@ -926,6 +926,32 @@ openstack volume service list
 | cinder-backup    | block1                 | nova | enabled | up    |
 +------------------+------------------------+------+---------+-------+
 ```
+si vous ne voyer pas block1 dans le tableau alors
+dans le fichier sur le controller 
+/etc/cinder/cinder.conf : 
+
+[DEFAULT]
+#ajouter ça
+enabled_backends = block1
+
+
+ajouter ça 
+[block1]
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volume_backend_name = block1
+volume_group = stack-volumes-block1
+iscsi_protocol = iscsi
+iscsi_helper = tgtadm
+
+
+
+sur la machine  block1
+/opt/stack/data/venv/bin/python3 -m pip install pymysql
+sudo systemctl restart devstack@c-vol.service
+sudo systemctl status  devstack@c-vol.service
+
+maintenant sur controller : 
+sudo systemctl restart devstack@c-api.service devstack@c-sch.service
 
 ---
 
