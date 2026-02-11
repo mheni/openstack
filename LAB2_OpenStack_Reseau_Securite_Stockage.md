@@ -241,7 +241,7 @@ openstack volume list
 ```
 **si vous voyer le status des volume en ERROR alors**
 
-dans le ficher /etc/cinder/cinder.conf sur la machine block1 
+```dans le ficher /etc/cinder/cinder.conf sur la machine block1 
 ajouter cette ligne sous la section DEFAULT
 [DEFAULT]
 transport_url = rabbit://stackrabbit:openstack@10.0.0.11:5672/
