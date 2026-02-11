@@ -2,7 +2,7 @@
 
 ---
 
-## 🎯 Objectifs du LAB
+##  Objectifs du LAB
 
 À l'issue de ce LAB complet, vous serez capable de :
 
@@ -35,7 +35,7 @@
 
 ---
 
-## 📚 Prérequis
+##  Prérequis
 
 Avant de commencer :
 
