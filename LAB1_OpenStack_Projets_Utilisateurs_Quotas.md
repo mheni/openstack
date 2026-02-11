@@ -190,10 +190,8 @@ En CLI, avec les credentials admin :
 source /opt/stack/devstack/openrc admin admin
 
 # Quotas compute + réseau pour Formation1
-openstack quota show --project Formation1
+openstack quota show Formation1
 
-# Quotas stockage bloc pour Formation1
-openstack volume quota show Formation1
 ```
 
 Notez les valeurs par défaut (instances, cores, ram, volumes, gigabytes, floating IPs…).
@@ -201,8 +199,7 @@ Notez les valeurs par défaut (instances, cores, ram, volumes, gigabytes, floati
 Répétez pour `Formation2` et `AdminLab` si besoin :
 
 ```bash
-openstack quota show --project Formation2
-openstack volume quota show Formation2
+openstack quota show Formation2
 ```
 
 ### 4.2 Définir des quotas spécifiques
@@ -226,9 +223,12 @@ Exemple de quotas :
 ```bash
 # Compute / réseau
 openstack quota set   --instances 3   --cores 4   --ram 8192   --floating-ips 2   Formation1
+openstack quota set --instances 3 --cores 4 --ram 8192 Formation1
+openstack network quota set --floatingip 2 Formation1
+
 
 # Cinder (stockage bloc)
-openstack volume quota set   --volumes 2   --gigabytes 10   Formation1
+openstack quota set   --volumes 2   --gigabytes 10   Formation1
 ```
 
 #### 4.2.2 Quotas Formation2 (plus large)
@@ -244,7 +244,7 @@ Exemple de quotas :
 ```bash
 openstack quota set   --instances 8   --cores 16   --ram 32768   --floating-ips 5   Formation2
 
-openstack volume quota set   --volumes 10   --gigabytes 100   Formation2
+openstack quota set   --volumes 10   --gigabytes 100   Formation2
 ```
 
 #### 4.2.3 Quotas AdminLab (large)
@@ -252,17 +252,17 @@ openstack volume quota set   --volumes 10   --gigabytes 100   Formation2
 ```bash
 openstack quota set   --instances 20   --cores 40   --ram 131072   --floating-ips 20   AdminLab
 
-openstack volume quota set   --volumes 20   --gigabytes 200   AdminLab
+openstack quota set   --volumes 20   --gigabytes 200   AdminLab
 ```
 
 ### 4.3 Vérification des quotas
 
 ```bash
-openstack quota show --project Formation1
-openstack volume quota show Formation1
+openstack quota show Formation1
 
-openstack quota show --project Formation2
-openstack volume quota show Formation2
+
+openstack quota show Formation2
+
 ```
 
 Vérifiez que les valeurs affichées correspondent bien aux objectifs définis.
