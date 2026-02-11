@@ -245,6 +245,14 @@ openstack volume list
 ajouter cette ligne sous la section DEFAULT
 [DEFAULT]
 transport_url = rabbit://stackrabbit:openstack@10.0.0.11:5672/
+
+sur block1 redemarrer le service cinder
+sudo systemctl restart devstack@c-api devstack@c-vol
+
+sur le controller
+sudo systemctl restart devstack@c-api devstack@c-sch
+
+
 ```
 
 **Résultat attendu** : `f1-data1` et `f1-data2` en statut `available`.[web:11][web:13]
