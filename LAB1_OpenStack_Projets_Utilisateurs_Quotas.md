@@ -223,9 +223,6 @@ Exemple de quotas :
 ```bash
 # Compute / réseau
 openstack quota set   --instances 3   --cores 4   --ram 8192   --floating-ips 2   Formation1
-openstack quota set --instances 3 --cores 4 --ram 8192 Formation1
-openstack network quota set --floatingip 2 Formation1
-
 
 # Cinder (stockage bloc)
 openstack quota set   --volumes 2   --gigabytes 10   Formation1
