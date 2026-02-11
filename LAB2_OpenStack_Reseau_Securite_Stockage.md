@@ -238,9 +238,9 @@ openstack volume create --size 2 f1-data2
 
 # Vérifier
 openstack volume list
-
-**si vous voyer le status des volume en ERROR alors**
 ```
+**si vous voyer le status des volume en ERROR alors**
+
 dans le ficher /etc/cinder/cinder.conf sur la machine block1 
 ajouter cette ligne sous la section DEFAULT
 [DEFAULT]
