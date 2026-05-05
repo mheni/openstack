@@ -529,7 +529,7 @@ ENABLED_SERVICES+=,horizon
 
 # Provider Network — interface ens37 (Provider VMnet2)
 Q_USE_PROVIDERNET_FOR_PUBLIC=True
-PUBLIC_INTERFACE=ens37
+PUBLIC_INTERFACE=ens36
 
 # VNC Console
 NOVA_VNC_ENABLED=True
