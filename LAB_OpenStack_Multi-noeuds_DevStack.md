@@ -488,22 +488,27 @@ cd devstack
 
 HOST_IP=10.0.0.11
 
+# Réseaux
 FIXED_RANGE=10.11.12.0/24
-FLOATING_RANGE=10.0.0.200/27
-PUBLIC_NETWORK_GATEWAY=10.0.0.1
+FLOATING_RANGE=203.0.113.0/24
+PUBLIC_NETWORK_GATEWAY=203.0.113.1
+Q_FLOATING_ALLOCATION_POOL=start=203.0.113.101,end=203.0.113.250
 
+# Mots de passe
 ADMIN_PASSWORD=openstack
 DATABASE_PASSWORD=openstack
 RABBIT_PASSWORD=openstack
 SERVICE_PASSWORD=openstack
 
+# Logs
 LOGFILE=/opt/stack/logs/stack.sh.log
 LOG_COLOR=False
+RECLONE=False
 
 # Services de base
 ENABLED_SERVICES=mysql,rabbit,key
 
-# Nova (sans n-cpu qui sera sur les compute nodes)
+# Nova (sans n-cpu — sera sur compute1/2)
 ENABLED_SERVICES+=,n-api,n-cond,n-sch,n-novnc,n-api-meta
 
 # Placement
@@ -512,7 +517,7 @@ ENABLED_SERVICES+=,placement-api,placement-client
 # Glance
 ENABLED_SERVICES+=,g-api
 
-# Cinder API + scheduler (obligatoire pour que block1 fonctionne)
+# Cinder API + scheduler
 ENABLED_SERVICES+=,c-api,c-sch
 
 # Neutron avec OVN
@@ -522,9 +527,11 @@ ENABLED_SERVICES+=,ovn-controller,ovn-northd,ovs-vswitchd,ovsdb-server,q-ovn-met
 # Horizon
 ENABLED_SERVICES+=,horizon
 
+# Provider Network — interface ens37 (Provider VMnet2)
 Q_USE_PROVIDERNET_FOR_PUBLIC=True
-PUBLIC_INTERFACE=ens38
+PUBLIC_INTERFACE=ens37
 
+# VNC Console
 NOVA_VNC_ENABLED=True
 VNCSERVER_LISTEN=0.0.0.0
 VNCSERVER_PROXYCLIENT_ADDRESS=$HOST_IP
