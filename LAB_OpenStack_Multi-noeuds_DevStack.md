@@ -680,16 +680,21 @@ cat > local.conf << 'EOF'
 
 HOST_IP=10.0.0.31
 
+# Réseaux — identiques au controller
 FIXED_RANGE=10.11.12.0/24
-FLOATING_RANGE=10.0.0.200/27
+FLOATING_RANGE=203.0.113.0/24
 
+# Mots de passe — identiques au controller
 ADMIN_PASSWORD=openstack
 DATABASE_PASSWORD=openstack
 RABBIT_PASSWORD=openstack
 SERVICE_PASSWORD=openstack
 
+# Logs
 LOGFILE=/opt/stack/logs/stack.sh.log
+RECLONE=False
 
+# Pointer vers le controller
 SERVICE_HOST=10.0.0.11
 MYSQL_HOST=$SERVICE_HOST
 RABBIT_HOST=$SERVICE_HOST
@@ -697,12 +702,14 @@ GLANCE_HOSTPORT=$SERVICE_HOST:9292
 KEYSTONE_AUTH_HOST=$SERVICE_HOST
 KEYSTONE_SERVICE_HOST=$SERVICE_HOST
 
+# Services compute uniquement
 ENABLED_SERVICES=n-cpu,placement-client,ovn-controller,ovs-vswitchd,ovsdb-server,q-ovn-metadata-agent
 
+# VNC Console
 NOVA_VNC_ENABLED=True
 NOVNCPROXY_URL="http://$SERVICE_HOST:6080/vnc_auto.html"
 VNCSERVER_LISTEN=$HOST_IP
-VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
+VNCSERVER_PROXYCLIENT_ADDRESS=$HOST_IP
 EOF
 
 ```
@@ -744,22 +751,23 @@ cd devstack
 cat > local.conf << 'EOF'
 [[local|localrc]]
 
-# IP Management de Compute2
 HOST_IP=10.0.0.32
 
-# Réseaux internes (identiques au controller)
+# Réseaux — identiques au controller
 FIXED_RANGE=10.11.12.0/24
-FLOATING_RANGE=10.0.0.200/27
+FLOATING_RANGE=203.0.113.0/24
 
-# Mots de passe (identiques au controller)
+# Mots de passe — identiques au controller
 ADMIN_PASSWORD=openstack
 DATABASE_PASSWORD=openstack
 RABBIT_PASSWORD=openstack
 SERVICE_PASSWORD=openstack
 
+# Logs
 LOGFILE=/opt/stack/logs/stack.sh.log
+RECLONE=False
 
-# Multi-nœud : pointer vers le controller
+# Pointer vers le controller
 SERVICE_HOST=10.0.0.11
 MYSQL_HOST=$SERVICE_HOST
 RABBIT_HOST=$SERVICE_HOST
@@ -767,14 +775,14 @@ GLANCE_HOSTPORT=$SERVICE_HOST:9292
 KEYSTONE_AUTH_HOST=$SERVICE_HOST
 KEYSTONE_SERVICE_HOST=$SERVICE_HOST
 
-# Services sur compute : Nova compute + OVN
+# Services compute uniquement
 ENABLED_SERVICES=n-cpu,placement-client,ovn-controller,ovs-vswitchd,ovsdb-server,q-ovn-metadata-agent
 
-# Configuration VNC
+# VNC Console
 NOVA_VNC_ENABLED=True
 NOVNCPROXY_URL="http://$SERVICE_HOST:6080/vnc_auto.html"
 VNCSERVER_LISTEN=$HOST_IP
-VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
+VNCSERVER_PROXYCLIENT_ADDRESS=$HOST_IP
 EOF
 
 ```
