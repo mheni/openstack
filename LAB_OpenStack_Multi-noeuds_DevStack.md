@@ -527,7 +527,7 @@ ENABLED_SERVICES+=,ovn-controller,ovn-northd,ovs-vswitchd,ovsdb-server,q-ovn-met
 # Horizon
 ENABLED_SERVICES+=,horizon
 
-# Provider Network — interface ens37 (Provider VMnet2)
+# Provider Network — interface ens36 (Provider VMnet2)
 Q_USE_PROVIDERNET_FOR_PUBLIC=True
 PUBLIC_INTERFACE=ens36
 
