@@ -484,6 +484,7 @@ cd devstack
 ### 4.2 Fichier local.conf
 
 ```bash
+cat > local.conf << 'EOF'
 [[local|localrc]]
 
 HOST_IP=10.0.0.11
@@ -536,6 +537,7 @@ NOVA_VNC_ENABLED=True
 VNCSERVER_LISTEN=0.0.0.0
 VNCSERVER_PROXYCLIENT_ADDRESS=$HOST_IP
 
+EOF
 ```
 
 Vérifier le fichier :
