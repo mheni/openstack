@@ -99,9 +99,9 @@ Toujours sur le **controller** :
 source /opt/stack/devstack/openrc admin admin
 
 # Créer les utilisateurs avec mot de passe simple
-openstack user create --project Formation1 --password user1pass user1
-openstack user create --project Formation2 --password user2pass user2
-openstack user create --project AdminLab  --password trainerpass trainer
+openstack user create --password user1pass --enable user1
+openstack user create --password user2pass --enable user2
+openstack user create --password trainerpass --enable trainer
 
 # Vérifier la liste des utilisateurs
 openstack user list
@@ -282,7 +282,8 @@ En CLI, en tant que `admin`, mais en ciblant le projet `Formation1` :
 
 ```bash
 source /opt/stack/devstack/openrc admin admin
-
+# Vérifier d'abord que le réseau "public" existe
+openstack network list --external
 # Option 1 : créer un réseau dédié Formation1
 openstack network create --project Formation1 f1-net
 openstack subnet create   --project Formation1   --network f1-net   --subnet-range 192.168.201.0/24   f1-subnet
@@ -324,11 +325,11 @@ Hypothèse : une flavor légère `m1.tiny` et une image `cirros-0.6.2-x86_64-dis
 openstack quota show
 
 # Lancer des instances dans Formation1
-openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net   f1-vm1
+openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net --build f1-vm1
 
-openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net   f1-vm2
+openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net  --build f1-vm2
 
-openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net   f1-vm3
+openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net --build f1-vm3
 ```
 
 Essayez ensuite de créer **une 4e instance** :
@@ -350,9 +351,21 @@ openstack volume create --size 5 f1-vol2
 
 # Tenter un 3e volume (quota volumes=2 ou gigabytes=10)
 openstack volume create --size 1 f1-vol3
+
+# Dans les quotas Formation1 définis en Partie 4 :
+# volumes=2, gigabytes=10
+
 ```
 
 **Résultat attendu** : la création du 3e volume échoue pour cause de quotas Cinder.
+**explication**
+- Vous créez f1-vol1 (5Go) + f1-vol2 (5Go) = 10Go → quota gigabytes atteint
+- Le 3e volume échoue pour gigabytes ET pour volumes count → bien
+
+- laquelle des deux limites est atteinte en premier :
+- volumes=2 → atteint après vol2 (count)
+- gigabytes=10 → atteint après vol1+vol2 (5+5=10Go)
+- → le 3e échoue sur les DEUX critères simultanément
 
 ### 5.5 Comparaison avec Formation2 (quotas plus larges)
 
@@ -375,6 +388,25 @@ openstack token issue
 
 Créez plusieurs instances et volumes dans `Formation2` : vous devriez pouvoir dépasser largement les limites de `Formation1` sans erreur, grâce aux quotas plus généreux.
 
+```bash
+cat > trainer-openrc.sh << 'EOF'
+export OS_AUTH_URL=http://10.0.0.11/identity
+export OS_PROJECT_NAME=AdminLab
+export OS_USERNAME=trainer
+export OS_PASSWORD=trainerpass
+export OS_USER_DOMAIN_NAME=Default
+export OS_PROJECT_DOMAIN_NAME=Default
+export OS_IDENTITY_API_VERSION=3
+EOF
+```
+
+# bonne pratique: Ajouter une description aux projets
+---
+```bash
+openstack project create --description "Groupe stagiaires 1" Formation1
+openstack project create --description "Groupe stagiaires 2" Formation2
+openstack project create --description "Tests administrateur" AdminLab
+```
 ---
 
 ## PARTIE 6 : Vue administrateur et supervision
