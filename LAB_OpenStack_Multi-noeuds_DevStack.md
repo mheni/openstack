@@ -191,7 +191,7 @@ ip a
 
 - `lo` : loopback (127.0.0.1)
 - `ens33` : NAT (DHCP automatique, ~10.10.10.x)
-- `ens37` : Provider (pas d'IP configurée)
+- `ens36` : Provider (pas d'IP configurée)
 - `ens38` : Management (pas d'IP configurée)
 
  **Important** : Si les noms d'interfaces sont différents (ex: ens160, ens192), note-les et adapte tous les fichiers Netplan ci-dessous avec tes noms réels.
@@ -200,7 +200,7 @@ ip a
 
 ### 2.3 Plan d'adressage
 
-| Nœud | Interface NAT (ens33) | Interface Provider (ens37) | Interface Management (ens38) |
+| Nœud | Interface NAT (ens33) | Interface Provider (ens36) | Interface Management (ens38) |
 |------|---------------------|--------------------------|----------------------------|
 | controller | DHCP auto | 203.0.113.11/24 | 10.0.0.11/24 |
 | compute1 | DHCP auto | 203.0.113.31/24 | 10.0.0.31/24 |
@@ -210,7 +210,7 @@ ip a
 **Rôle des réseaux :**
 
 - **NAT (ens33)** : Accès Internet pour télécharger les packages
-- **Provider (ens37)** : Réseau externe OpenStack (floating IPs)
+- **Provider (ens36)** : Réseau externe OpenStack (floating IPs)
 - **Management (ens38)** : Communication inter-nœuds OpenStack
 
 ---
