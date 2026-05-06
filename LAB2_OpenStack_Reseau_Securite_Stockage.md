@@ -166,7 +166,7 @@ openstack security group create ssh-only --description "SSH access only"
 # Règles : autoriser SSH (port 22) depuis partout
 openstack security group rule create   --proto tcp   --dst-port 22   --ingress   ssh-only
 
-# (Optionnel) autoriser ICMP pour ping
+# autoriser ICMP pour ping
 openstack security group rule create   --proto icmp   --ingress   ssh-only
 
 # Vérifier
@@ -186,7 +186,7 @@ Hypothèses :
 ```bash
 # Toujours en contexte user1
 
-openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net   --key-name mykey   --security-group ssh-only   f1-vm-ssh
+openstack server create   --flavor m1.tiny   --image cirros-0.6.2-x86_64-disk   --network f1-net   --key-name mykey   --security-group ssh-only --wait   f1-vm-ssh
 
 # Vérifier
 openstack server list
@@ -217,6 +217,9 @@ Depuis l’hôte physique (ou une machine ayant accès au réseau provider) :
 ```bash
 ping <FLOATING_IP>
 ssh cirros@<FLOATING_IP>   # ou ubuntu@<FLOATING_IP> selon l’image
+# mot de passe : gocubsgo
+# le mot de passe par défaut de cirros
+# OU utiliser la console VNC depuis Horizon si SSH ne fonctionne pas
 ```
 
 **Résultat attendu** : ping OK (si ICMP autorisé) et connexion SSH possible grâce au security group `ssh-only`.[web:11][web:16]
@@ -241,18 +244,24 @@ openstack volume list
 ```
 **si vous voyer le status des volume en ERROR alors**
 
-```dans le ficher /etc/cinder/cinder.conf sur la machine block1 
-ajouter cette ligne sous la section DEFAULT
+```correction dans le ficher /etc/cinder/cinder.conf sur la machine block1 
+```bash
+# Sur block1 — ajouter transport_url dans cinder.conf
+sudo nano /etc/cinder/cinder.conf
+```
+
+```ini
 [DEFAULT]
 transport_url = rabbit://stackrabbit:openstack@10.0.0.11:5672/
+```
 
-sur block1 redemarrer le service cinder
-sudo systemctl restart devstack@c-api devstack@c-vol
+```bash
+# Redémarrer sur block1
+sudo systemctl restart devstack@c-vol.service
 
-sur le controller
-sudo systemctl restart devstack@c-api devstack@c-sch
-
-
+# Redémarrer sur controller
+sudo systemctl restart devstack@c-api.service devstack@c-sch.service
+```
 ```
 
 **Résultat attendu** : `f1-data1` et `f1-data2` en statut `available`.[web:11][web:13]
